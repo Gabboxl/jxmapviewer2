@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -43,10 +45,12 @@ public class Sample5
 
         TileFactoryInfo osmInfo = new OSMTileFactoryInfo();
         TileFactoryInfo veInfo = new VirtualEarthTileFactoryInfo(VirtualEarthTileFactoryInfo.MAP);
+        TileFactoryInfo veHybridInfo = new VirtualEarthTileFactoryInfo(VirtualEarthTileFactoryInfo.HYBRID);
 //        TileFactoryInfo googleInfo = new GoogleMapsTileFactoryInfo("<key>");
 
         factories.add(new DefaultTileFactory(osmInfo));
         factories.add(new DefaultTileFactory(veInfo));
+        factories.add(new DefaultTileFactory(veHybridInfo));
 //        factories.add(new DefaultTileFactory(googleInfo));
 
         // Setup JXMapViewer
@@ -59,7 +63,7 @@ public class Sample5
         mapViewer.setTileFactory(firstFactory);
         labelAttr.setText(firstFactory.getInfo().getAttribution() + " - " + firstFactory.getInfo().getLicense());
 
-        GeoPosition frankfurt = new GeoPosition(50.11, 8.68);
+        final GeoPosition frankfurt = new GeoPosition(50.11, 8.68);
 
         // Set the focus
         mapViewer.setZoom(7);
@@ -78,7 +82,7 @@ public class Sample5
         String[] tfLabels = new String[factories.size()];
         for (int i = 0; i < factories.size(); i++)
         {
-            tfLabels[i] = factories.get(i).getInfo().getName();
+            tfLabels[i] = factories.get(i).getInfo().getName() + " " + i;
         }
 
         final JComboBox combo = new JComboBox(tfLabels);
@@ -89,7 +93,16 @@ public class Sample5
             {
                 TileFactory factory = factories.get(combo.getSelectedIndex());
                 TileFactoryInfo info = factory.getInfo();
+                
+                int currzoom = mapViewer.getZoom();
+                GeoPosition currcenter = mapViewer.getCenterPosition();
+                
                 mapViewer.setTileFactory(factory);
+                
+                mapViewer.setAddressLocation(currcenter);
+                mapViewer.setZoom(currzoom);
+                
+                
                 labelAttr.setText(info.getAttribution() + " - " + info.getLicense());
             }
         });
@@ -101,7 +114,7 @@ public class Sample5
         final JLabel labelThreadCount = new JLabel("Threads: ");
 
         // Display the viewer in a JFrame
-        JFrame frame = new JFrame("JXMapviewer2 Example 5");
+        final JFrame frame = new JFrame("JXMapviewer2 Example 5");
         frame.setLayout(new BorderLayout());
         frame.add(panel, BorderLayout.NORTH);
         frame.add(mapViewer);
@@ -122,6 +135,37 @@ public class Sample5
         });
 
         t.start();
+        
+        
+        
+                mapViewer.addPropertyChangeListener("zoom", new PropertyChangeListener()
+        {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt)
+            {
+                updateWindowTitle(frame, mapViewer);
+            }
+        });
+
+        mapViewer.addPropertyChangeListener("center", new PropertyChangeListener()
+        {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt)
+            {
+                updateWindowTitle(frame, mapViewer);
+            }
+        });
+
+        updateWindowTitle(frame, mapViewer);
+    }
+    
+        protected static void updateWindowTitle(JFrame frame, JXMapViewer mapViewer)
+    {
+        double lat = mapViewer.getCenterPosition().getLatitude();
+        double lon = mapViewer.getCenterPosition().getLongitude();
+        int zoom = mapViewer.getZoom();
+
+        frame.setTitle(String.format("JXMapviewer2 Example 5 (%.2f / %.2f) - Zoom: %d", lat, lon, zoom));
     }
 
 }
