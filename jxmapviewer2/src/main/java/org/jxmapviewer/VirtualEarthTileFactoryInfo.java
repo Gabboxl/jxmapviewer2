@@ -47,7 +47,7 @@ public class VirtualEarthTileFactoryInfo extends TileFactoryInfo
 
     private final static int TOP_ZOOM_LEVEL = 20;
 
-    private final static int MAX_ZOOM_LEVEL = 20;
+    private final static int MAX_ZOOM_LEVEL = 19;
 
     private final static int MIN_ZOOM_LEVEL = 0;
 
