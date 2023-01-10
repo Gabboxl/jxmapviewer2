@@ -84,7 +84,7 @@ public class VirtualEarthTileFactoryInfo extends TileFactoryInfo
     @Override
     public String getTileUrl(final int x, final int y, final int zoom)
     {
-        final String quad = tileToQuadKey(x, y, TOP_ZOOM_LEVEL - 0 - zoom);
+        final String quad = tileToQuadKey(x, y, TOP_ZOOM_LEVEL - zoom);
         return "http://" + mode.type + quad.charAt(quad.length() - 1) +
                 ".ortho.tiles.virtualearth.net/tiles/"
                 + mode.type + quad + mode.ext + "?g=1";
